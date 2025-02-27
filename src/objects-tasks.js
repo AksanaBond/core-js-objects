@@ -123,8 +123,8 @@ function isEmptyObject(obj) {
  *    immutableObj.newProp = 'new';
  *    console.log(immutableObj) => {a: 1, b: 2}
  */
-function makeImmutable(/* obj */) {
-  throw new Error('Not implemented');
+function makeImmutable(obj) {
+  return Object.freeze(obj);
 }
 
 /**
@@ -148,6 +148,25 @@ function makeWord(lettersObject) {
   return arrayWord.join('');
 }
 
+const getChangeFrom100 = (change) => {
+  if (change.money50 > 0 && change.money25 > 0) {
+    return {
+      money50: -1,
+      money25: -1,
+      money100: 1,
+    };
+  }
+
+  if (change.money25 >= 3) {
+    return {
+      money25: -3,
+      money100: 1,
+    };
+  }
+
+  return false;
+};
+
 /**
  * There is a queue for tickets to a popular movie.
  * The ticket seller sells one ticket at a time strictly in order and give the change.
@@ -162,8 +181,39 @@ function makeWord(lettersObject) {
  *    sellTickets([25, 25, 50]) => true
  *    sellTickets([25, 100]) => false (The seller does not have enough money to give change.)
  */
-function sellTickets(/* queue */) {
-  throw new Error('Not implemented');
+function sellTickets(queue) {
+  if (!queue) {
+    return true;
+  }
+  const change = {
+    money25: 0,
+    money50: 0,
+    money100: 0,
+  };
+  for (let i = 0; i < queue.length; i += 1) {
+    const money = queue[i];
+    if (money === 25) {
+      change.money25 += 1;
+    } else if (money === 50) {
+      if (change.money25 > 0) {
+        change.money25 -= 1;
+        change.money50 += 1;
+      } else {
+        return false;
+      }
+    } else if (money === 100) {
+      const changeDiff = getChangeFrom100(change);
+      if (!changeDiff) {
+        return false;
+      }
+
+      change.money100 += changeDiff.money100;
+      change.money50 += changeDiff.money50;
+      change.money25 += changeDiff.money25;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -179,8 +229,12 @@ function sellTickets(/* queue */) {
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+  this.getArea = () => {
+    return this.width * this.height;
+  };
 }
 
 /**
@@ -208,8 +262,11 @@ function getJSON(obj) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const obj = JSON.parse(json);
+  const newObj = Object.create(proto);
+  Object.assign(newObj, obj);
+  return newObj;
 }
 
 /**
